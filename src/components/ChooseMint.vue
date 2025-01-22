@@ -69,17 +69,32 @@
     </div>
   </div>
 </template>
-
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
 import { getShortUrl } from "src/js/wallet-helpers";
 import { mapActions, mapState, mapWritableState } from "pinia";
 import { useMintsStore } from "stores/mints";
 import { MintClass } from "stores/mints";
-import { title } from "process";
+import windowMixin from "src/boot/mixin";
+
+interface ChosenMint {
+  url: string;
+  shorturl: string;
+}
 
 export default defineComponent({
   name: "ChooseMint",
+
+  setup() {
+    const mintsStore = useMintsStore();
+    const { activeMintUrl } = mintsStore;
+
+    return {
+      activeMintUrl,
+      mintsStore,
+    };
+  },
+
   mixins: [windowMixin],
   props: {
     rounded: {
@@ -97,18 +112,20 @@ export default defineComponent({
   },
   data: function () {
     return {
-      chosenMint: null,
+      chosenMint: null as ChosenMint | null,
     };
   },
   mounted() {
     this.chosenMint = {
-      url: this.activeMintUrl,
-      shorturl: getShortUrl(this.activeMintUrl),
+      url: this.activeMintUrl || "",
+      shorturl: getShortUrl(this.activeMintUrl || ""),
     };
   },
   watch: {
     chosenMint: async function () {
-      this.activeMintUrl = this.chosenMint.url;
+      if (this.chosenMint) {
+        this.mintsStore.activeMintUrl = this.chosenMint.url;
+      }
     },
   },
   computed: {
