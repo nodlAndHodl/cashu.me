@@ -51,7 +51,7 @@
   </q-dialog>
 </template>
 
-<script>
+<script lang="ts">
 import { onMounted, ref } from "vue";
 import { useWelcomeStore } from "src/stores/welcome";
 import { useStorageStore } from "src/stores/storage";
@@ -71,24 +71,26 @@ export default {
   setup() {
     const welcomeStore = useWelcomeStore();
     const storageStore = useStorageStore();
-    const fileUpload = ref(null);
+    const fileUpload = ref<HTMLInputElement | null>(null);
 
     const onChangeFileUpload = () => {
-      const file = fileUpload.value.files[0];
-      if (file) readFile(file);
+      const files = fileUpload.value?.files;
+      if (files && files[0]) {
+        readFile(files[0]);
+      }
     };
 
-    const readFile = (file) => {
+    const readFile = (file: File) => {
       const reader = new FileReader();
       reader.onload = (f) => {
-        const backup = JSON.parse(f.target.result);
+        const backup = JSON.parse(f.target?.result as string);
         storageStore.restoreFromBackup(backup);
       };
       reader.readAsText(file);
     };
 
-    const dragFile = (ev) => {
-      const file = ev.dataTransfer.files[0];
+    const dragFile = (ev: DragEvent) => {
+      const file = ev.dataTransfer?.files[0];
       if (file) readFile(file);
     };
 

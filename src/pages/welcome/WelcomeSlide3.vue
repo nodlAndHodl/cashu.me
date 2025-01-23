@@ -48,11 +48,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { useWelcomeStore } from "src/stores/welcome";
 import { useWalletStore } from "src/stores/wallet";
 import { ref, computed } from "vue";
 import { useQuasar } from "quasar";
+import windowMixin from "src/boot/mixin";
 
 export default {
   name: "WelcomeSlide3",

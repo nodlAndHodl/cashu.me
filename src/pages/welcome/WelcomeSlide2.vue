@@ -49,7 +49,7 @@
   <AndroidPWAPrompt v-if="!isPWA()" />
 </template>
 
-<script>
+<script lang="ts">
 import iOSPWAPrompt from "components/iOSPWAPrompt.vue";
 import AndroidPWAPrompt from "components/AndroidPWAPrompt.vue";
 export default {

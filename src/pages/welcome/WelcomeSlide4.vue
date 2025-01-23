@@ -322,7 +322,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { useWelcomeStore } from "src/stores/welcome";
 import { useQuasar } from "quasar";
 
