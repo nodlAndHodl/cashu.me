@@ -7,9 +7,10 @@
   </q-layout>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, ref } from "vue";
 import MainHeader from "components/MainHeader.vue";
+import windowMixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "MainLayout",

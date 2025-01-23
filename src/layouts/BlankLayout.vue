@@ -6,12 +6,11 @@
   </q-layout>
 </template>
 
-<script>
-import { defineComponent, ref } from "vue";
+<script lang="ts">
+import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "BlankLayout",
-  mixins: [windowMixin],
   components: {},
 });
 </script>

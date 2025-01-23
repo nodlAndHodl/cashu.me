@@ -7,13 +7,12 @@
   </q-layout>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, ref } from "vue";
 import FullscreenHeader from "components/FullscreenHeader.vue";
 
 export default defineComponent({
   name: "FullscreenLayout",
-  mixins: [windowMixin],
   components: {
     FullscreenHeader,
   },
