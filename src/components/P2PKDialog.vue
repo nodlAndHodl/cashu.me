@@ -66,12 +66,13 @@
     </q-card>
   </q-dialog>
 </template>
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
 import { mapActions, mapState, mapWritableState } from "pinia";
 import VueQrcode from "@chenfengyuan/vue-qrcode";
 
 import { useP2PKStore } from "src/stores/p2pk";
+import windowMixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "P2PKDialog",
@@ -83,11 +84,15 @@ export default defineComponent({
     return {};
   },
   computed: {
-    ...mapState(useP2PKStore, ["p2pkKeys", "showP2PKData", "showLastKey"]),
+    ...mapState(useP2PKStore, ["p2pkKeys", "showP2PKData"]),
     ...mapWritableState(useP2PKStore, ["showP2PKDialog"]),
   },
   methods: {
-    ...mapActions(useP2PKStore, ["generateKeypair", "showKeyDetails"]),
+    ...mapActions(useP2PKStore, [
+      "generateKeypair",
+      "showKeyDetails",
+      "showLastKey",
+    ]),
     newKeys: function () {
       this.generateKeypair();
       this.showLastKey();

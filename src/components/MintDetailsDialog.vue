@@ -30,7 +30,7 @@
           </div>
           <q-card-section class="q-pa-sm">
             <div
-              v-if="showMintInfoData.info.name"
+              v-if="showMintInfoData.info && showMintInfoData.info.name"
               class="row justify-center q-pt-sm"
             >
               <q-item-label
@@ -43,7 +43,7 @@
               </q-item-label>
             </div>
             <div
-              v-if="showMintInfoData.info.description"
+              v-if="showMintInfoData.info && showMintInfoData.info.description"
               class="row justify-center q-pt-sm"
             >
               <q-item-label
@@ -56,7 +56,7 @@
               </q-item-label>
             </div>
             <div
-              v-if="showMintInfoData.info.description_long"
+              v-if="showMintInfoData.info && showMintInfoData.info.description_long"
               class="row justify-center q-pt-sm"
             >
               <q-item-label
@@ -69,7 +69,7 @@
               </q-item-label>
             </div>
             <div
-              v-if="showMintInfoData.info.version"
+              v-if="showMintInfoData.info && showMintInfoData.info.version"
               class="row justify-center q-pt-sm"
             >
               <q-item-label
@@ -82,7 +82,7 @@
               </q-item-label>
             </div>
             <div
-              v-if="showMintInfoData.info.nuts"
+              v-if="showMintInfoData.info && showMintInfoData.info.nuts"
               class="row justify-center q-pt-sm"
             >
               <q-item-label
@@ -100,14 +100,14 @@
           <q-card-section>
             <div
               v-if="
-                showMintInfoData.info.contact &&
+                showMintInfoData.info && showMintInfoData.info.contact &&
                 showMintInfoData.info.contact.length > 0
               "
               class="justify-center"
             >
               <div
                 v-for="contactInfo in showMintInfoData.info.contact"
-                :key="contactInfo.method"
+                :key="contactInfo.method as keyof typeof contactMethods"
                 class="row justify-center q-pt-sm"
               >
                 <q-item-label
@@ -151,12 +151,13 @@
     </q-card>
   </q-dialog>
 </template>
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
 import { mapActions, mapState, mapWritableState } from "pinia";
 import VueQrcode from "@chenfengyuan/vue-qrcode";
 
 import { useMintsStore } from "src/stores/mints";
+import windowMixin from "src/boot/mixin";
 export default defineComponent({
   name: "MintInfoDialog",
   mixins: [windowMixin],
@@ -167,11 +168,11 @@ export default defineComponent({
     return {
       contactIcons: {
         email: "mail_outline",
-      },
+      } as { [key: string]: string },
       contactMethods: {
         twitter: "X",
         nostr: "Nostr",
-      },
+      } as { [key: string]: string },
     };
   },
   computed: {
@@ -179,7 +180,7 @@ export default defineComponent({
     ...mapWritableState(useMintsStore, ["showMintInfoDialog"]),
   },
   methods: {
-    shortenText: function (text, maxLength) {
+    shortenText: function (text: string, maxLength: number) {
       if (text.length > maxLength) {
         return text.substring(0, maxLength) + "...";
       }

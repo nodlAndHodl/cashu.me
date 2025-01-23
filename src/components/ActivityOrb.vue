@@ -25,9 +25,11 @@ import { mapState, mapWritableState } from "pinia";
 import { useUiStore } from "stores/ui";
 import { useWalletStore } from "../stores/wallet";
 import { useReceiveTokensStore } from "src/stores/receiveTokensStore";
+import windowMixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "ActivityOrb",
+  mixins: [windowMixin],
   components: {},
   props: {},
   data: function () {

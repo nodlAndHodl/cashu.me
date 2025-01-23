@@ -10,7 +10,8 @@
         color="primary"
         aria-label="Menu"
         no-caps
-        ><span class="q-mx-md text-weight-bold">Wallet</span>
+      >
+        <span class="q-mx-md text-weight-bold">Wallet</span>
       </q-btn>
       <!-- <q-toolbar-title> </q-toolbar-title> -->
     </q-toolbar>
@@ -21,7 +22,7 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "FullscreenHeader",
-  props: {},
+  props: undefined,
   components: {},
   setup() {
     return {};

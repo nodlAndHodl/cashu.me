@@ -3,7 +3,7 @@
     <q-list>
       <q-item
         v-for="token in paginatedTokens"
-        :key="token.id"
+        :key="token.token"
         clickable
         v-ripple
         class="q-px-md"
@@ -102,18 +102,19 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
 import * as _ from "underscore";
 import { defineComponent } from "vue";
 import { shortenString } from "src/js/string-utils";
 import { formatDistanceToNow, parseISO } from "date-fns";
-import { useTokensStore } from "src/stores/tokens";
+import { HistoryToken, useTokensStore } from "src/stores/tokens";
 import { mapState, mapWritableState, mapActions } from "pinia";
 import { useReceiveTokensStore } from "src/stores/receiveTokensStore";
 import { useWalletStore } from "src/stores/wallet";
 import { useSendTokensStore } from "src/stores/sendTokensStore";
 import token from "../js/token";
 import { notify } from "src/js/notify";
+import windowMixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "HistoryTable",
@@ -160,21 +161,21 @@ export default defineComponent({
   },
   methods: {
     ...mapActions(useWalletStore, ["checkTokenSpendable"]),
-    formattedDate(date_str) {
+    formattedDate(date_str: string) {
       const date = parseISO(date_str); // Convert string to date object
       return formatDistanceToNow(date, { addSuffix: false }); // "6 hours ago"
     },
-    shortenString: function (s) {
-      return shortenString(s, 20, 10);
+    shortenString: function (stringVal: string) {
+      return shortenString(stringVal, 20, 10);
     },
-    handlePageChange(page) {
+    handlePageChange(page: number) {
       this.currentPage = page;
     },
-    receiveToken(tokenStr) {
+    receiveToken(tokenStr: string) {
       this.receiveData.tokensBase64 = tokenStr;
       this.showReceiveTokens = true;
     },
-    showTokenDialog: function (historyToken) {
+    showTokenDialog: function (historyToken: HistoryToken) {
       if (historyToken.token === undefined) {
         notify("Old token not found");
         return;
@@ -182,7 +183,7 @@ export default defineComponent({
       const tokensBase64 = historyToken.token;
       console.log("##### showTokenDialog");
       const tokenObj = token.decode(tokensBase64);
-      this.sendData.tokens = token.getProofs(tokenObj);
+      if (tokenObj) this.sendData.tokens = token.getProofs(tokenObj);
       this.sendData.tokensBase64 = _.clone(tokensBase64);
       this.sendData.paymentRequest = historyToken.paymentRequest;
       this.sendData.historyAmount = historyToken.amount;

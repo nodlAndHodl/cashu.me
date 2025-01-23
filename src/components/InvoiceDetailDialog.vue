@@ -13,8 +13,8 @@
     <q-card class="q-pa-lg q-px-sm qcard q-card-top">
       <NumericKeyboard
         v-if="showNumericKeyboard && useNumericKeyboard"
-        :model-value="invoiceData.amount"
-        @update:modelValue="(val) => (invoiceData.amount = val)"
+        :model-value="invoiceData.amount.toString()"
+        @update:modelValue="(val: number) => (invoiceData.amount = val)"
         @done="requestMintButton"
       />
       <!-- invoice is not entered -->
@@ -118,7 +118,7 @@
               >
             </div>
             <div
-              v-if="this.invoiceData.mint != undefined"
+              v-if="invoiceData.mint != undefined"
               class="row justify-center q-pt-sm"
             >
               <q-chip
@@ -162,7 +162,7 @@
     </q-card>
   </q-dialog>
 </template>
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
 import { mapActions, mapState, mapWritableState } from "pinia";
 import VueQrcode from "@chenfengyuan/vue-qrcode";
@@ -175,6 +175,7 @@ import { useWorkersStore } from "src/stores/workers";
 import { useMintsStore } from "src/stores/mints";
 import { useSettingsStore } from "../stores/settings";
 import NumericKeyboard from "components/NumericKeyboard.vue";
+import windowMixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "InvoiceDetailDialog",
@@ -188,6 +189,7 @@ export default defineComponent({
   data: function () {
     return {
       createInvoiceButtonBlocked: false,
+      showNumericKeyboard: false,
     };
   },
   watch: {
@@ -211,9 +213,12 @@ export default defineComponent({
       "activeUnitCurrencyMultiplyer",
     ]),
     ...mapState(useWorkersStore, ["invoiceWorkerRunning"]),
+
+    ...mapState(useUiStore, ["tickerShort"]),
+
     ...mapWritableState(useUiStore, [
       "showInvoiceDetails",
-      "tickerShort",
+      "tickerLong",
       "globalMutexLock",
       "showNumericKeyboard",
     ]),

@@ -40,13 +40,14 @@
     </q-card-section>
   </q-card>
 </template>
-<script>
-import { defineComponent, ref } from "vue";
+<script lang="ts">
+import { defineComponent } from "vue";
 import { getShortUrl } from "src/js/wallet-helpers";
 import { useUiStore } from "src/stores/ui";
 import { mapWritableState } from "pinia";
 import { useReceiveTokensStore } from "src/stores/receiveTokensStore";
 import { EventBus } from "../js/eventBus";
+import windowMixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "NoMintWarnBanner",
@@ -69,19 +70,19 @@ export default defineComponent({
       "receiveData",
     ]),
     balance: function () {
-      return this.activeProofs
+      return (this.activeProofs || [])
         .map((t) => t)
         .flat()
-        .reduce((sum, el) => (sum += el.amount), 0);
+        .reduce((sum: number, el: any) => (sum += el.amount), 0);
     },
     getActiveMintUrlShort: function () {
       return getShortUrl(this.activeMintUrl);
     },
     getBalance: function () {
-      var balance = this.activeProofs
+      var balance = (this.activeProofs ?? [])
         .map((t) => t)
         .flat()
-        .reduce((sum, el) => (sum += el.amount), 0);
+        .reduce((sum: number, el: any) => (sum += el.amount), 0);
       return balance;
     },
   },
@@ -94,8 +95,8 @@ export default defineComponent({
       this.showReceiveEcashDrawer = true;
     },
     handleAddMintClick: function () {
-      this.expandHistory = true;
-      this.tab = "mints";
+      this.expandHistory.value = true;
+      this.tab.value = "mints";
       EventBus.emit("scrollToAddMintDiv");
     },
   },

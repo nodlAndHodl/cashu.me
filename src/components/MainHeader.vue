@@ -103,10 +103,11 @@
   </q-drawer>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, ref } from "vue";
 import EssentialLink from "components/EssentialLink.vue";
 import { useUiStore } from "src/stores/ui";
+import windowMixin from "src/boot/mixin";
 
 const linksList = [
   {
@@ -151,7 +152,7 @@ export default defineComponent({
     const leftDrawerOpen = ref(false);
     const uiStore = useUiStore();
     const countdown = ref(0);
-    let countdownInterval;
+    let countdownInterval: string | number | NodeJS.Timeout | undefined;
 
     const toggleLeftDrawer = () => {
       leftDrawerOpen.value = !leftDrawerOpen.value;

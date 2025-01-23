@@ -255,15 +255,6 @@ import {
   Nfc as NfcIcon,
 } from "lucide-vue-next";
 
-import { map } from "underscore";
-import {
-  notifyError,
-  notifySuccess,
-  notifyWarning,
-  notify,
-} from "../js/notify";
-import MintSettings from "./MintSettings.vue";
-
 export default defineComponent({
   name: "ReceiveTokenDialog",
   mixins: [windowMixin],

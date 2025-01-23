@@ -2,7 +2,7 @@
 import QrScanner from "qr-scanner";
 import { URDecoder } from "@gandlaf21/bc-ur";
 import { useCameraStore } from "src/stores/camera";
-import { mapActions, mapState, mapWritableState } from "pinia";
+import { mapActions, mapState } from "pinia";
 import { useUiStore } from "src/stores/ui";
 export default {
   emits: ["decode"],

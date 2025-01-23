@@ -53,18 +53,19 @@
             outline
             class="q-mx-sm"
             v-if="
+              getPwaDisplayMode &&
               getPwaDisplayMode() == 'browser' &&
               deferredPWAInstallPrompt != null
             "
             color="primary"
-            @click="triggerPwaInstall()"
+            @click="triggerPwaInstall && triggerPwaInstall()"
             >Install Cashu</q-btn
           >
           <q-btn
             flat
             size="0.6rem"
             class="q-mx-xs q-px-none"
-            @click="copyText(baseURL)"
+            @click="copyText && copyText(baseURL)"
             >Copy URL</q-btn
           >
           <q-btn
@@ -83,7 +84,7 @@
             outline
             size="0.8rem"
             class="q-ml-auto"
-            @click="setWelcomeDialogSeen()"
+            @click="setWelcomeDialogSeen && setWelcomeDialogSeen()"
             >Continue</q-btn
           >
         </div>
@@ -96,11 +97,12 @@
   display: none;
 }
 </style>
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
 import { useWalletStore } from "src/stores/wallet";
 import { useStorageStore } from "src/stores/storage";
+import windowMixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "WelcomeDialog",
@@ -121,17 +123,18 @@ export default defineComponent({
   },
   methods: {
     ...mapActions(useStorageStore, ["restoreFromBackup"]),
-    readFile(file) {
+    readFile(file: Blob) {
       let reader = new FileReader();
       reader.onload = (f) => {
-        let content = f.target.result;
-        let backup = JSON.parse(content);
-
-        this.restoreFromBackup(backup);
+        if (f.target) {
+          let content = f.target.result as string;
+          let backup = JSON.parse(content);
+          this.restoreFromBackup(backup);
+        }
       };
       reader.readAsText(file);
     },
-    dragFile(ev) {
+    dragFile(ev: { preventDefault: () => void; dataTransfer: { files: any } }) {
       ev.preventDefault();
 
       let files = ev.dataTransfer.files;
@@ -139,16 +142,26 @@ export default defineComponent({
 
       this.readFile(file);
     },
-    allowDrop(ev) {
+    allowDrop(ev: { preventDefault: () => void }) {
       ev.preventDefault();
     },
     onChangeFileUpload() {
-      let file = this.$refs.fileUpload.files[0];
+      let file = (this.$refs.fileUpload as HTMLInputElement).files![0];
 
       this.readFile(file);
     },
     browseBackupFile() {
-      this.$refs.fileUpload.click();
+      (this.$refs.fileUpload as HTMLInputElement).click();
+    },
+    copyText(text: string) {
+      navigator.clipboard.writeText(text).then(
+        () => {
+          console.log("Text copied to clipboard");
+        },
+        (err) => {
+          console.error("Could not copy text: ", err);
+        }
+      );
     },
   },
 });
