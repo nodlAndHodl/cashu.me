@@ -22,7 +22,11 @@
           enter-active-class="animated pulse"
           leave-active-class="animated fadeOut"
         >
-          <ToggleUnit class="q-mt-lg q-mb-none" :balanceView="true" />
+          <ToggleUnit
+            class="q-mt-lg q-mb-none"
+            :balanceView="false"
+            @toggle-unit="toggleUnit"
+          />
         </transition>
       </div>
     </div>
