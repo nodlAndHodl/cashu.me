@@ -86,12 +86,15 @@ const proofsStore = useProofsStore();
 
 export const useWalletStore = defineStore("wallet", {
   state: () => {
+    const invoiceHistoryRef = useLocalStorage<InvoiceHistory[]>(
+      "cashu.invoiceHistory",
+      []
+    );
+    const invoiceHistory: InvoiceHistory[] = invoiceHistoryRef.value;
+
     return {
       mnemonic: useLocalStorage("cashu.mnemonic", ""),
-      invoiceHistory: useLocalStorage(
-        "cashu.invoiceHistory",
-        [] as InvoiceHistory[]
-      ),
+      invoiceHistory,
       keysetCounters: useLocalStorage(
         "cashu.keysetCounters",
         [] as KeysetCounter[]

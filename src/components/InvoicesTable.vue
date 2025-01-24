@@ -2,7 +2,7 @@
   <div style="max-width: 1000px; margin: 0 auto">
     <div class="q-pa-xs" style="max-width: 500px; margin: 0 auto">
       <q-list>
-        <q-item v-for="invoice in paginatedInvoices" :key="invoice.id">
+        <q-item v-for="invoice in paginatedInvoices" :key="invoice.bolt11">
           <q-item-section
             side
             @click="showInvoiceDialog(invoice)"
@@ -86,14 +86,14 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
 import { shortenString } from "src/js/string-utils";
 import { mapWritableState, mapActions } from "pinia";
 import { useUiStore } from "src/stores/ui";
-import { useWalletStore } from "src/stores/wallet";
-import { useInvoicesWorkerStore } from "src/stores/invoicesWorker";
+import { InvoiceHistory, useWalletStore } from "src/stores/wallet";
 import { formatDistanceToNow, parseISO } from "date-fns";
+import windowMixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "InvoicesTable",
@@ -138,13 +138,13 @@ export default defineComponent({
       "mintOnPaid",
       "checkOutgoingInvoice",
     ]),
-    shortenString: function (s) {
+    shortenString: function (s: string) {
       return shortenString(s, 20, 10);
     },
-    handlePageChange(page) {
+    handlePageChange(page: number) {
       this.currentPage = page;
     },
-    showInvoiceDialog: async function (invoice) {
+    showInvoiceDialog: async function (invoice: InvoiceHistory) {
       this.invoiceData = invoice;
       this.showInvoiceDetails = true;
       if (invoice.status === "pending") {
@@ -157,7 +157,7 @@ export default defineComponent({
       // useInvoicesWorkerStore().addInvoiceToChecker(invoice.quote);
       // this.tab("invoice");
     },
-    formattedDate(date_str) {
+    formattedDate(date_str: string) {
       const date = parseISO(date_str); // Convert string to date object
       return formatDistanceToNow(date, { addSuffix: false }); // "6 hours ago"
     },
