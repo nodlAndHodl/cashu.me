@@ -6,7 +6,7 @@ export default { decode, getProofs, getMint, getUnit, getMemo };
 /**
  * Decodes an encoded cashu token
  */
-function decode(encoded_token: string) {
+function decode(encoded_token: string | undefined): Token | undefined {
   if (!encoded_token || encoded_token === "") return;
   return getDecodedToken(encoded_token);
 }
@@ -14,26 +14,26 @@ function decode(encoded_token: string) {
 /**
  * Returns a list of proofs from a decoded token
  */
-function getProofs(decoded_token: Token): WalletProof[] {
-  if (!(decoded_token.proofs.length > 0)) {
+function getProofs(decoded_token: Token | undefined): WalletProof[] {
+  if (!decoded_token || !(decoded_token.proofs.length > 0)) {
     throw new Error("Token format wrong");
   }
   const proofs = decoded_token.proofs.flat();
   return useProofsStore().proofsToWalletProofs(proofs);
 }
 
-function getMint(decoded_token: Token) {
-  /*
-      Returns first mint of a token (very rough way).
-      */
-  if (decoded_token.proofs.length > 0) {
-    return decoded_token.mint;
-  } else {
+function getMint(decoded_token: Token | undefined) {
+  //Returns first mint of a token (very rough way).
+  if (!decoded_token || !decoded_token.proofs) {
     return "";
   }
+  return decoded_token.mint;
 }
 
-function getUnit(decoded_token: Token) {
+function getUnit(decoded_token: Token | undefined) {
+  if (!decoded_token) {
+    return "";
+  }
   if (decoded_token.unit != null) {
     return decoded_token.unit;
   } else {
@@ -50,10 +50,11 @@ function getUnit(decoded_token: Token) {
   }
 }
 
-function getMemo(decoded_token: Token) {
+function getMemo(decoded_token: Token | undefined) {
+  if (!decoded_token || decoded_token.memo != null) {
+    return "";
+  }
   if (decoded_token.memo != null) {
     return decoded_token.memo;
-  } else {
-    return "";
   }
 }

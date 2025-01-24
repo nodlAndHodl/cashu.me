@@ -45,13 +45,14 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
 import { getShortUrl } from "src/js/wallet-helpers";
 import { mapActions, mapState } from "pinia";
 import { useMintsStore } from "stores/mints";
 import { useP2PKStore } from "src/stores/p2pk";
 import token from "src/js/token";
+import windowMixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "TokenInformation",
@@ -98,7 +99,7 @@ export default defineComponent({
   },
   methods: {
     ...mapActions(useP2PKStore, ["isLocked", "isLockedToUs"]),
-    getProofsMint: function (proofs) {
+    getProofsMint: function (proofs: any[]) {
       // unique keyset IDs of proofs
       let uniqueIds = [...new Set(proofs.map((p) => p.id))];
       // mints that have any of the keyset IDs
@@ -113,7 +114,7 @@ export default defineComponent({
         return getShortUrl(mints[0].url);
       }
     },
-    mintKnownToUs: function (proofs) {
+    mintKnownToUs: function (proofs: any[]) {
       // unique keyset IDs of proofs
       let uniqueIds = [...new Set(proofs.map((p) => p.id))];
       // mints that have any of the keyset IDs
