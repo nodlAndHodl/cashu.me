@@ -5,16 +5,12 @@ import { notifyApiError, notifyError, notifySuccess } from "src/js/notify";
 import {
   CashuMint,
   MintKeys,
-  MintAllKeysets,
-  MintActiveKeys,
   Proof,
   SerializedBlindedSignature,
   MintKeyset,
   GetInfoResponse,
 } from "@cashu/cashu-ts";
 import { useUiStore } from "./ui";
-import { cashuDb } from "src/stores/dexie";
-import { liveQuery } from "dexie";
 import { ref, computed, watch } from "vue";
 import { useProofsStore } from "./proofs";
 
