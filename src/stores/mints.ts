@@ -92,18 +92,17 @@ type BlindSignatureAudit = {
 export const useMintsStore = defineStore("mints", {
   state: () => {
     // State variables
-    // const proofs = ref<WalletProof[]>([]);
     const activeProofs = ref<WalletProof[]>([]);
     const activeUnit = useLocalStorage<string>("cashu.activeUnit", "sat");
     const activeMintUrl = useLocalStorage<string>("cashu.activeMintUrl", "");
-    const addMintData = ref({
+    const addMintData = {
       url: "",
       nickname: "",
-    });
+    };
     const mints = useLocalStorage("cashu.mints", [] as Mint[]);
     const showAddMintDialog = ref(false);
     const addMintBlocking = ref(false);
-    const showRemoveMintDialog = ref(false);
+    const showRemoveMintDialog = false;
     const showMintInfoDialog = ref(false);
     const showMintInfoData = ref({} as Mint);
 

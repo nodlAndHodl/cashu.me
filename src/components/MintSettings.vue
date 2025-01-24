@@ -26,14 +26,12 @@
                     ? 'check_circle'
                     : 'radio_button_unchecked'
                 "
-                @click="
-                  activateMintUrl(mint.url, (verbose = false), (force = true))
-                "
+                @click="activateMintUrl(mint.url, false, true)"
                 class="cursor-pointer"
               />
             </q-item-section>
             <q-avatar
-              v-if="getMintIconUrl(mint)"
+              v-if="mint.info && getMintIconUrl(mint)"
               size="32px"
               class="q-mr-sm q-mt-xs"
             >
@@ -43,18 +41,14 @@
               <q-item-label
                 lines="1"
                 v-if="mint.nickname"
-                @click="
-                  activateMintUrl(mint.url, (verbose = false), (force = false))
-                "
+                @click="activateMintUrl(mint.url, false, false)"
                 class="cursor-pointer"
                 style="word-break: break-all; font-weight: bold"
                 >{{ mint.nickname }}</q-item-label
               >
               <q-item-label
                 lines="1"
-                @click="
-                  activateMintUrl(mint.url, (verbose = false), (force = false))
-                "
+                @click="activateMintUrl(mint.url, false, false)"
                 class="cursor-pointer"
                 style="
                   word-break: break-all;
@@ -344,7 +338,7 @@
             :disable="
               !swapData.fromUrl ||
               !swapData.toUrl ||
-              !(swapData.amount > 0) ||
+              !(swapData.amount && swapData.amount > 0) ||
               swapData.fromUrl == swapData.toUrl
             "
             :loading="swapBlocking"
@@ -407,7 +401,7 @@
 
     <q-dialog
       v-model="showAddMintDialog"
-      @keydown.enter.prevent="addMintInternal(addMintData, (verbose = true))"
+      @keydown.enter.prevent="addMintInternal(addMintData, true)"
       backdrop-filter="blur(2px) brightness(60%)"
     >
       <q-card class="q-pa-lg">
@@ -435,7 +429,7 @@
               color="primary"
               icon="check"
               :loading="addMintBlocking"
-              @click="addMintInternal(addMintData, (verbose = true))"
+              @click="addMintInternal(addMintData, true)"
               >Add mint
               <template v-slot:loading>
                 <q-spinner-hourglass />
@@ -502,7 +496,7 @@
               color="primary"
               @click="
                 showEditMintDialog = false;
-                removeMint(mintToRemove.url, (verbose = true));
+                removeMint(mintToRemove.url);
               "
               >Remove mint</q-btn
             >
@@ -517,15 +511,13 @@
     </q-dialog>
   </div>
 </template>
-<script>
+<script lang="ts">
 import { ref, defineComponent, onMounted, onBeforeUnmount } from "vue";
 import { getShortUrl } from "src/js/wallet-helpers";
 import { mapActions, mapState, mapWritableState } from "pinia";
-import { useMintsStore, MintClass } from "src/stores/mints";
+import { useMintsStore, MintClass, Mint } from "src/stores/mints";
 import { useWalletStore } from "src/stores/wallet";
 import { useCameraStore } from "src/stores/camera";
-import { map } from "underscore";
-import { currentDateStr } from "src/js/utils";
 import { useSettingsStore } from "src/stores/settings";
 import { useNostrStore } from "src/stores/nostr";
 import { useP2PKStore } from "src/stores/p2pk";
@@ -535,6 +527,7 @@ import { useUiStore } from "src/stores/ui";
 import { notifyError, notifyWarning } from "src/js/notify";
 import MintDetailsDialog from "src/components/MintDetailsDialog.vue";
 import { EventBus } from "../js/eventBus";
+import windowMixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "MintSettings",
@@ -548,7 +541,7 @@ export default defineComponent({
       if (addMintDiv.value) {
         // addMintDiv.value.scrollIntoView({ behavior: "smooth" });
         // const top = addMintDiv.value.offsetTop;
-        const rect = addMintDiv.value.getBoundingClientRect();
+        const rect = (addMintDiv.value as HTMLElement).getBoundingClientRect();
         window.scrollTo({
           top: window.scrollY + rect.top,
           behavior: "smooth",
@@ -574,15 +567,21 @@ export default defineComponent({
       mintToEdit: {
         url: "",
         nickname: "",
+        keys: [],
+        keysets: [],
       },
       mintToRemove: {
         url: "",
         nickname: "",
         balances: {},
+        keys: [],
+        keysets: [],
       },
       editMintData: {
         url: "",
         nickname: "",
+        keys: [],
+        keysets: [],
       },
       addMintDialog: {
         show: false,
@@ -634,9 +633,7 @@ export default defineComponent({
   },
   methods: {
     ...mapActions(useNostrStore, [
-      "init",
       "initNdkReadOnly",
-      "getUserPubkey",
       "fetchEventsFromUser",
       "fetchMints",
     ]),
@@ -651,13 +648,18 @@ export default defineComponent({
     ...mapActions(useWorkersStore, ["clearAllWorkers"]),
     ...mapActions(useCameraStore, ["closeCamera", "showCamera"]),
     ...mapActions(useSwapStore, ["mintAmountSwap"]),
-    editMint: function (mint) {
+
+    openRemoveMintDialog() {
+      this.showRemoveMintDialog = true; // Correctly updating the Ref type
+    },
+
+    editMint: function (mint: any) {
       // copy object to avoid changing the original
       this.mintToEdit = Object.assign({}, mint);
       this.editMintData = Object.assign({}, mint);
       this.showEditMintDialog = true;
     },
-    validateMintUrl: function (url) {
+    validateMintUrl: function (url: string | URL) {
       try {
         new URL(url);
         return true;
@@ -667,20 +669,24 @@ export default defineComponent({
     },
     sanitizeMintUrlAndShowAddDialog: function () {
       // if no protocol is given, add https
-      if (!this.addMintData.url.match(/^[a-zA-Z]+:\/\//)) {
-        this.addMintData.url = "https://" + this.addMintData.url;
+      const addMint = this.addMintData;
+      if (!addMint.url.match(/^[a-zA-Z]+:\/\//)) {
+        addMint.url = "https://" + addMint.url;
       }
-      if (!this.validateMintUrl(this.addMintData.url)) {
+      if (!this.validateMintUrl(addMint.url)) {
         notifyError("Invalid URL");
         return;
       }
-      let urlObj = new URL(this.addMintData.url);
+      let urlObj = new URL(addMint.url);
       urlObj.hostname = urlObj.hostname.toLowerCase();
-      this.addMintData.url = urlObj.toString();
-      this.addMintData.url = this.addMintData.url.replace(/\/$/, "");
-      this.showAddMintDialog = true;
+      addMint.url = urlObj.toString();
+      addMint.url = addMint.url.replace(/\/$/, "");
+      this.showAddMintDialog.value = true;
     },
-    addMintInternal: function (mintToAdd, verbose) {
+    addMintInternal: function (
+      mintToAdd: { url: string; nickname?: string },
+      verbose: boolean | undefined
+    ) {
       this.addingMint = true;
       try {
         this.addMint(mintToAdd, verbose);
@@ -689,7 +695,7 @@ export default defineComponent({
         this.addingMint = false;
       }
     },
-    mintClass(mint) {
+    mintClass(mint: Mint) {
       return new MintClass(mint);
     },
     swapAmountDataOptions: function () {
@@ -706,19 +712,33 @@ export default defineComponent({
       }
       return options;
     },
-    showRemoveMintDialogWrapper: function (mint) {
+    showRemoveMintDialogWrapper: function (mint: string | URL) {
       // select the mint from this.mints and add its balances
       let mintToRemove = this.mints.find((m) => m.url == mint);
 
-      this.mintToRemove = mintToRemove;
+      if (mintToRemove) {
+        this.mintToRemove = {
+          ...mintToRemove,
+          balances: {},
+          keys: [],
+          keysets: [],
+          nickname: mintToRemove.nickname || "",
+        };
+      } else {
+        notifyError("Mint not found");
+      }
       this.showRemoveMintDialog = true;
     },
     clearSwapData: function () {
-      this.swapData.fromUrl = "";
-      this.swapData.toUrl = "";
+      this.swapData.fromUrl = { url: "", optionLabel: "" };
+      this.swapData.toUrl = { url: "", optionLabel: "" };
       this.swapData.amount = undefined;
     },
-    extractAndMintAmountSwap: async function (swapAmountData) {
+    extractAndMintAmountSwap: async function (swapAmountData: {
+      fromUrl: any;
+      toUrl: any;
+      amount: any;
+    }) {
       swapAmountData.fromUrl = this.swapData.fromUrl.url;
       swapAmountData.toUrl = this.swapData.toUrl.url;
       swapAmountData.amount = this.swapData.amount;
@@ -731,7 +751,7 @@ export default defineComponent({
       console.log("### fetch mints");
       let maxTries = 5;
       let tries = 0;
-      let mintUrls = [];
+      let mintUrls: any[] = [];
       while (mintUrls.length == 0 && tries < maxTries) {
         try {
           mintUrls = await this.fetchMints();
@@ -748,11 +768,11 @@ export default defineComponent({
       console.log(mintUrls);
       this.discoveringMints = false;
     },
-    showMintInfo: async function (mint) {
+    showMintInfo: async function (mint: any) {
       this.showMintInfoData = mint;
-      this.showMintInfoDialog = true;
+      this.showMintInfoDialog.value = true;
     },
-    getMintIconUrl: function (mint) {
+    getMintIconUrl: function (mint: any) {
       if (mint.info) {
         if (mint.info.icon_url) {
           return mint.info.icon_url;
