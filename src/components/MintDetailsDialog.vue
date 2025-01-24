@@ -56,7 +56,9 @@
               </q-item-label>
             </div>
             <div
-              v-if="showMintInfoData.info && showMintInfoData.info.description_long"
+              v-if="
+                showMintInfoData.info && showMintInfoData.info.description_long
+              "
               class="row justify-center q-pt-sm"
             >
               <q-item-label
@@ -100,7 +102,8 @@
           <q-card-section>
             <div
               v-if="
-                showMintInfoData.info && showMintInfoData.info.contact &&
+                showMintInfoData.info &&
+                showMintInfoData.info.contact &&
                 showMintInfoData.info.contact.length > 0
               "
               class="justify-center"
@@ -153,7 +156,7 @@
 </template>
 <script lang="ts">
 import { defineComponent } from "vue";
-import { mapActions, mapState, mapWritableState } from "pinia";
+import { mapState, mapWritableState } from "pinia";
 import VueQrcode from "@chenfengyuan/vue-qrcode";
 
 import { useMintsStore } from "src/stores/mints";
