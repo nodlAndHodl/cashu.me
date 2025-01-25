@@ -75,7 +75,7 @@ import { getShortUrl } from "src/js/wallet-helpers";
 import { mapActions, mapState, mapWritableState } from "pinia";
 import { useMintsStore } from "stores/mints";
 import { MintClass } from "stores/mints";
-import windowMixin from "src/boot/mixin";
+import mixin from "src/boot/mixin";
 
 interface ChosenMint {
   url: string;
@@ -95,7 +95,7 @@ export default defineComponent({
     };
   },
 
-  mixins: [windowMixin],
+  mixins: [mixin],
   props: {
     rounded: {
       type: Boolean,

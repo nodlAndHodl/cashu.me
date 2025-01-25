@@ -527,11 +527,11 @@ import { useUiStore } from "src/stores/ui";
 import { notifyError, notifyWarning } from "src/js/notify";
 import MintDetailsDialog from "src/components/MintDetailsDialog.vue";
 import { EventBus } from "../js/eventBus";
-import windowMixin from "src/boot/mixin";
+import mixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "MintSettings",
-  mixins: [windowMixin],
+  mixins: [mixin],
   components: { MintDetailsDialog },
   props: {},
   setup() {

@@ -66,11 +66,11 @@ import { mapState, mapWritableState } from "pinia";
 import VueQrcode from "@chenfengyuan/vue-qrcode";
 
 import { useNWCStore } from "src/stores/nwc";
-import windowMixin from "src/boot/mixin";
+import mixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "NWCDialog",
-  mixins: [windowMixin],
+  mixins: [mixin],
   components: {
     VueQrcode,
   },

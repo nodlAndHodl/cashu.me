@@ -102,11 +102,11 @@ import { defineComponent } from "vue";
 import { mapActions, mapState } from "pinia";
 import { useWalletStore } from "src/stores/wallet";
 import { useStorageStore } from "src/stores/storage";
-import windowMixin from "src/boot/mixin";
+import mixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "WelcomeDialog",
-  mixins: [windowMixin],
+  mixins: [mixin],
   props: {
     welcomeDialog: Object,
     triggerPwaInstall: Function,

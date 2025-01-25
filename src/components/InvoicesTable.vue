@@ -93,11 +93,11 @@ import { mapWritableState, mapActions } from "pinia";
 import { useUiStore } from "src/stores/ui";
 import { InvoiceHistory, useWalletStore } from "src/stores/wallet";
 import { formatDistanceToNow, parseISO } from "date-fns";
-import windowMixin from "src/boot/mixin";
+import mixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "InvoicesTable",
-  mixins: [windowMixin],
+  mixins: [mixin],
   props: {},
   data: function () {
     return {

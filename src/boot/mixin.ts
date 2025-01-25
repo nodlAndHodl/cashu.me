@@ -18,7 +18,7 @@ interface VueWithQuasar {
 }
 window.LOCALE = "en";
 
-const windowMixin = {
+const mixin = {
   data() {
     return {
       g: {
@@ -272,7 +272,7 @@ const windowMixin = {
         useQuasar().localStorage.getItem("cashu.theme") || "default-theme"
       );
     } else {
-      windowMixin.methods.changeColor("monochrome");
+      mixin.methods.changeColor("monochrome");
     }
 
     // only for iOS
@@ -300,4 +300,4 @@ const windowMixin = {
   },
 };
 
-export default windowMixin;
+export default mixin;

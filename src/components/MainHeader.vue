@@ -107,7 +107,7 @@
 import { defineComponent, ref } from "vue";
 import EssentialLink from "components/EssentialLink.vue";
 import { useUiStore } from "src/stores/ui";
-import windowMixin from "src/boot/mixin";
+import mixin from "src/boot/mixin";
 
 const linksList = [
   {
@@ -144,7 +144,7 @@ const linksList = [
 
 export default defineComponent({
   name: "MainHeader",
-  mixins: [windowMixin],
+  mixins: [mixin],
   components: {
     EssentialLink,
   },

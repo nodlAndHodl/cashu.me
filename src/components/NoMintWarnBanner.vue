@@ -47,11 +47,11 @@ import { useUiStore } from "src/stores/ui";
 import { mapWritableState } from "pinia";
 import { useReceiveTokensStore } from "src/stores/receiveTokensStore";
 import { EventBus } from "../js/eventBus";
-import windowMixin from "src/boot/mixin";
+import mixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "NoMintWarnBanner",
-  mixins: [windowMixin],
+  mixins: [mixin],
   props: {
     proofs: Array,
     activeProofs: Array,

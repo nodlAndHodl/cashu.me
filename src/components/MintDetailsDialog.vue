@@ -160,10 +160,10 @@ import { mapState, mapWritableState } from "pinia";
 import VueQrcode from "@chenfengyuan/vue-qrcode";
 
 import { useMintsStore } from "src/stores/mints";
-import windowMixin from "src/boot/mixin";
+import mixin from "src/boot/mixin";
 export default defineComponent({
   name: "MintInfoDialog",
-  mixins: [windowMixin],
+  mixins: [mixin],
   components: {
     VueQrcode,
   },

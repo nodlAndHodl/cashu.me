@@ -72,11 +72,11 @@ import { mapActions, mapState, mapWritableState } from "pinia";
 import VueQrcode from "@chenfengyuan/vue-qrcode";
 
 import { useP2PKStore } from "src/stores/p2pk";
-import windowMixin from "src/boot/mixin";
+import mixin from "src/boot/mixin";
 
 export default defineComponent({
   name: "P2PKDialog",
-  mixins: [windowMixin],
+  mixins: [mixin],
   components: {
     VueQrcode,
   },

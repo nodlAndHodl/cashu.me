@@ -23,11 +23,11 @@
   </transition>
 </template>
 <script lang="ts">
-import windowMixin from "src/boot/mixin";
+import mixin from "src/boot/mixin";
 import { defineComponent } from "vue";
 export default defineComponent({
   name: "iOSPWAPrompt",
-  mixins: [windowMixin],
+  mixins: [mixin],
   props: {},
   data: function () {
     return {

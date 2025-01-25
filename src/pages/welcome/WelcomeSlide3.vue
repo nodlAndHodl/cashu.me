@@ -53,11 +53,11 @@ import { useWelcomeStore } from "src/stores/welcome";
 import { useWalletStore } from "src/stores/wallet";
 import { ref, computed } from "vue";
 import { useQuasar } from "quasar";
-import windowMixin from "src/boot/mixin";
+import mixin from "src/boot/mixin";
 
 export default {
   name: "WelcomeSlide3",
-  mixins: [windowMixin],
+  mixins: [mixin],
   setup() {
     const welcomeStore = useWelcomeStore();
     const walletStore = useWalletStore();

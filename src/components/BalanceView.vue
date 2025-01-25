@@ -149,12 +149,12 @@ import { useWalletStore } from "stores/wallet";
 import { usePriceStore } from "stores/price";
 import ToggleUnit from "components/ToggleUnit.vue";
 import AnimatedNumber from "components/AnimatedNumber.vue";
-import windowMixin from "src/boot/mixin";
+import mixin from "src/boot/mixin";
 import { MintKeyset } from "@cashu/cashu-ts";
 
 export default defineComponent({
   name: "BalanceView",
-  mixins: [windowMixin],
+  mixins: [mixin],
   components: {
     ToggleUnit,
     AnimatedNumber,
