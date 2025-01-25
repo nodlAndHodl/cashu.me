@@ -22,11 +22,7 @@
           enter-active-class="animated pulse"
           leave-active-class="animated fadeOut"
         >
-          <ToggleUnit
-            class="q-mt-lg q-mb-none"
-            :balanceView="false"
-            @toggle-unit="toggleUnit"
-          />
+          <ToggleUnit class="q-mt-lg q-mb-none" :balanceView="true" />
         </transition>
       </div>
     </div>
@@ -37,7 +33,7 @@
       mode="out-in"
     >
       <q-carousel
-        v-model="activeUnit.value"
+        v-model="this.activeUnit"
         transition-prev="jump-up"
         transition-next="jump-up"
         swipeable
@@ -62,24 +58,24 @@
                 <strong>
                   <AnimatedNumber
                     :value="getTotalBalance"
-                    :format="(val: number) => formatCurrency(val, activeUnit.value)"
+                    :format="(val) => formatCurrency(val, activeUnit)"
                     class="q-my-none q-py-none cursor-pointer"
                   />
                 </strong>
               </h3>
               <div v-if="bitcoinPrice">
-                <strong v-if="activeUnit.value == 'sat'">
+                <strong v-if="this.activeUnit == 'sat'">
                   <AnimatedNumber
                     :value="(bitcoinPrice / 100000000) * getTotalBalance"
-                    :format="(val: number) => formatCurrency(val, 'USD')"
+                    :format="(val) => formatCurrency(val, 'USD')"
                   />
                 </strong>
                 <strong
-                  v-if="activeUnit.value == 'usd' || activeUnit.value == 'eur'"
+                  v-if="this.activeUnit == 'usd' || this.activeUnit == 'eur'"
                 >
                   <AnimatedNumber
                     :value="(getTotalBalance / 100 / bitcoinPrice) * 100000000"
-                    :format="(val: number) => formatCurrency(val, 'sat')"
+                    :format="(val) => formatCurrency(val, 'sat')"
                   />
                 </strong>
                 <q-tooltip>
@@ -96,7 +92,7 @@
 
     <div class="row q-mt-md q-mb-none text-secondary" v-if="activeMintUrl">
       <div class="col-12 cursor-pointer">
-        <span class="text-weight-light" @click="setTab && setTab('mints')">
+        <span class="text-weight-light" @click="setTab('mints')">
           Mint: <b>{{ activeMintLabel }}</b>
         </span>
       </div>
@@ -109,7 +105,7 @@
           <b>
             <AnimatedNumber
               :value="getActiveBalance"
-              :format="(val: number) => formatCurrency(val, activeUnit.value)"
+              :format="(val) => formatCurrency(val, activeUnit)"
               class="q-my-none q-py-none cursor-pointer"
             />
           </b>
@@ -130,7 +126,7 @@
         class="q-mx-none q-mt-xs q-pr-sm cursor-pointer"
         @click="checkPendingTokens()"
         ><q-icon name="history" size="1rem" class="q-mx-xs" /> Pending:
-        {{ formatCurrency(pendingBalance, activeUnit.value) }}
+        {{ formatCurrency(pendingBalance, this.activeUnit) }}
         <q-tooltip>Check all pending tokens</q-tooltip>
       </q-btn>
     </div>
@@ -138,23 +134,24 @@
   <!-- </q-card-section>
   </q-card> -->
 </template>
-<script lang="ts">
+<script>
 import { defineComponent, ref } from "vue";
 import { getShortUrl } from "src/js/wallet-helpers";
 import { mapState, mapWritableState, mapActions } from "pinia";
 import { useMintsStore } from "stores/mints";
+import { useSettingsStore } from "stores/settings";
 import { useTokensStore } from "stores/tokens";
 import { useUiStore } from "stores/ui";
 import { useWalletStore } from "stores/wallet";
 import { usePriceStore } from "stores/price";
 import ToggleUnit from "components/ToggleUnit.vue";
 import AnimatedNumber from "components/AnimatedNumber.vue";
-import mixin from "src/boot/mixin";
-import { MintKeyset } from "@cashu/cashu-ts";
+import axios from "axios";
+import { map } from "underscore";
 
 export default defineComponent({
   name: "BalanceView",
-  mixins: [mixin],
+  mixins: [windowMixin],
   components: {
     ToggleUnit,
     AnimatedNumber,
@@ -170,6 +167,7 @@ export default defineComponent({
       "mints",
       "totalUnitBalance",
       "activeUnit",
+      "activeMint",
     ]),
     ...mapState(useTokensStore, ["historyTokens"]),
     ...mapState(useUiStore, ["globalMutexLock"]),
@@ -179,18 +177,18 @@ export default defineComponent({
     pendingBalance: function () {
       return -this.historyTokens
         .filter((t) => t.status == "pending")
-        .filter((t) => t.unit == this.activeUnit.value)
+        .filter((t) => t.unit == this.activeUnit)
         .reduce((sum, el) => (sum += el.amount), 0);
     },
     balancesOptions: function () {
-      const mint = useMintsStore().activeMint();
+      const mint = this.activeMint();
       return Object.entries(mint.allBalances).map(([key, value]) => ({
         label: key,
         value: key,
       }));
     },
     allMintKeysets: function () {
-      return ([] as MintKeyset[]).concat(...this.mints.map((m) => m.keysets));
+      return [].concat(...this.mints.map((m) => m.keysets));
     },
     getTotalBalance: function () {
       return this.totalUnitBalance;
@@ -199,7 +197,7 @@ export default defineComponent({
       return this.activeBalance;
     },
     activeMintLabel: function () {
-      const mintClass = useMintsStore().activeMint();
+      const mintClass = this.activeMint();
 
       return mintClass.mint.nickname || getShortUrl(this.activeMintUrl);
     },
@@ -222,13 +220,13 @@ export default defineComponent({
     ...mapActions(useWalletStore, ["checkPendingTokens"]),
     ...mapActions(usePriceStore, ["fetchBitcoinPriceUSD"]),
     toggleUnit: function () {
-      const units = useMintsStore().activeMint().units;
-      this.activeUnit.value =
-        units[(units.indexOf(this.activeUnit.value) + 1) % units.length];
-      return this.activeUnit.value;
+      const units = this.activeMint().units;
+      this.activeUnit =
+        units[(units.indexOf(this.activeUnit) + 1) % units.length];
+      return this.activeUnit;
     },
     toggleHideBalance() {
-      this.hideBalance.value = !this.hideBalance.value;
+      this.hideBalance = !this.hideBalance;
     },
   },
 });
